@@ -1,6 +1,15 @@
 from __future__ import print_function
+from luma.led_matrix.device import max7219
+from luma.core.interface.serial import spi, noop
+from luma.core.render import canvas
+from luma.core.virtual import viewport
+from luma.core.legacy import text, show_message
+from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT, SINCLAIR_FONT, LCD_FONT
 import mido
 from mido import Message
+import re
+import time
+import argparse
 
 OFF = 0
 RED_LOW = 13
@@ -11,6 +20,7 @@ AMBER_HIGH = 63
 YELLOW = 62
 GREEN_LOW = 28
 GREEN_HIGH = 60
+
 
 class step():
     """
@@ -72,6 +82,7 @@ class sequencer():
     channel = 0
     activeStep = 0
     note = None
+    name = None
     silent = True
 
     def nextStep(self):
@@ -126,11 +137,12 @@ class sequencer():
         self.sequence[activeStep].litup(GREEN_LOW)
         return activeStep
 
-    def __init__(self, note, launchpadPorts, interfacePorts, silent):
+    def __init__(self, note, name, launchpadPorts, interfacePorts, silent):
         print("init")
         self.launchpad = launchpadPorts
         self.interface = interfacePorts
         self.note = note
+        self.name = name
         self.silent = silent
         self.sequence = []
         cc = 102
@@ -171,12 +183,20 @@ class ui():
     started = False
     clockDivider = 11
     clockCount = 0
+    device = None
     def __init__(self, debug):
+        serial = spi(port=0, device=0, gpio=noop())
+        self.device = max7219(serial,
+                              cascaded=2,
+                              rotate=1)
+        print("Created device")
+        self.printMsg("ESID", font=TINY_FONT)
         if debug:
-            self.launchpad['in'] = None
-            self.launchpad['out'] = None
-            self.interface['in'] = None
-            self.interface['out'] = None
+            self.interface['in'] = mido.open_input()
+            self.interface['out'] = mido.open_output()
+            inputPort = "Launch Control MIDI 1"
+            self.launchpad['in'] = mido.open_input(inputPort)
+            self.launchpad['out'] = mido.open_output(inputPort)
         else:
             inputPort = "Launch Control MIDI 1"
             clockPort = "Elektron Digitakt MIDI 1"
@@ -189,21 +209,57 @@ class ui():
             self.interface['out'] = mido.open_output(outputPort)
         self.sequences = []
         self.sequences.append(sequencer(36,
+                                        "KK",
                                         self.launchpad,
                                         self.interface,
                                         silent=False))
         self.sequences.append(sequencer(46,
+                                        "SD",
                                         self.launchpad,
                                         self.interface,
                                         silent=True))
         self.sequences.append(sequencer(44,
+                                        "OH",
                                         self.launchpad,
                                         self.interface,
                                         silent=True))
         self.sequences.append(sequencer(39,
+                                        "CP",
                                         self.launchpad,
                                         self.interface,
                                         silent=True))
+
+    def printMsg(self, txt, font=LCD_FONT, moving=False):
+        virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
+        print(len(txt))
+        margin = 8
+        marginY = 0
+        margins = []
+        if font == TINY_FONT:
+            margins.append([0,0])
+            margins.append([4,0])
+            margins.append([0,8])
+            margins.append([4,8])
+        else:
+            margins.append([0,0])
+            margins.append([0,8])
+        if font == TINY_FONT:
+            marginY =4
+            margin = 0
+        with canvas(virtual) as draw:
+            for i, word in enumerate(txt):
+                text(draw, (margins[i][0], margins[i][1]), word, fill="white", font=proportional(font))
+        if moving:
+            print("move")
+            for i in range(virtual.height - self.device.height):
+                print(i)
+                virtual.set_position((0, i))
+                time.sleep(0.5)
+        else:
+            virtual.set_position((0, 0))
+
+
+
     def showIndicator(self):
         for i in range(0,4):
             self.litup(i + 8, OFF)
@@ -228,7 +284,7 @@ class ui():
             seq.activeStep = 0
             if not seq.silent:
                 seq.sequence[0].litup(GREEN_LOW)
-    
+
     def clockHandler(self):
         self.printSilent()
         for seq in self.sequences:
@@ -274,6 +330,8 @@ class ui():
                     else:
                         self.active += 1
                     print("active:" + str(self.active))
+                    self.printMsg(self.sequences[self.active].name,
+                                  font=TINY_FONT)
                     self.sequences[self.active].silent = False
                     self.showIndicator()
                     self.reloadSequence()
@@ -295,8 +353,10 @@ class ui():
                 for step in self.sequences[self.active].sequence:
                     if step.ccPitch == msg.control:
                         step.addCc(102, msg.value)
+                        self.printMsg("p" + str(msg.value), font=TINY_FONT)
                         print("ccNOOOOOOOOOOOOOOW")
                     if step.ccVelo == msg.control:
+                        self.printMsg("v" + str(msg.value), font=TINY_FONT)
                         print("veloNOOOOOOOOOOOOOOW")
                         step.velocity = msg.value
 
@@ -331,6 +391,6 @@ class ui():
             #self.sequences[self.active].run()
 
 if __name__ == "__main__":
-    debug = False
+    debug = True
     temp = ui(debug)
     temp.run()

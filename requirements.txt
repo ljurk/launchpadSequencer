@@ -1,2 +1,4 @@
 mido
 python-rtmidi
+luma.core
+luma.led_matrix
