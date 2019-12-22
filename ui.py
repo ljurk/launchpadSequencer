@@ -81,9 +81,19 @@ class Ui():
         else:
             self.loadSequences()
 
-    def printMsg(self, txt, font=LCD_FONT, moving=False):
+    def printMsg(self, txt, font=LCD_FONT, moving=False, pos=None):
         virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
         margins = []
+        if pos and len(txt) == 1:
+            with canvas(virtual) as draw:
+                text(draw,
+                     pos,
+                     txt,
+                     fill="white",
+                     font=proportional(font))
+            virtual.set_position((0, 0))
+            return
+
         if font == TINY_FONT:
             margins.append([0, 0])
             margins.append([4, 0])
@@ -249,13 +259,23 @@ class Ui():
                     self.printMsg("save", font=TINY_FONT)
                     self.saveSequence(self.sequences[self.active])
 
-                for step in self.sequences[self.active].sequence:
+                for stepNumber , step in enumerate(self.sequences[self.active].sequence):
                     if step.ccPitch == msg.control:
+                        print(stepNumber)
                         step.addCc(102, msg.value)
-                        self.printMsg("p" + str(msg.value), font=TINY_FONT)
+
+                        self.printMsg(".",
+                                      font=TINY_FONT,
+                                      pos=(stepNumber,2))
+                        self.printMsg("." + str(msg.value),
+                                      font=TINY_FONT)
                         print("ccNOOOOOOOOOOOOOOW")
                     if step.ccVelo == msg.control:
-                        self.printMsg("v" + str(msg.value), font=TINY_FONT)
+                        self.printMsg(".",
+                                      font=TINY_FONT,
+                                      pos=(stepNumber,1))
+                        self.printMsg("'" + str(msg.value),
+                                      font=TINY_FONT)
                         print("veloNOOOOOOOOOOOOOOW")
                         step.velocity = msg.value
 
