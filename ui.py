@@ -1,5 +1,6 @@
 from __future__ import print_function
 import time
+import json
 import mido
 from luma.led_matrix.device import max7219
 from luma.core.interface.serial import spi, noop
@@ -21,6 +22,7 @@ class Ui():
     clockDivider = 11
     clockCount = 0
     device = None
+    sequenceDir = "sequences/"
     def __init__(self, debug):
         serial = spi(port=0, device=0, gpio=noop())
         self.device = max7219(serial,
@@ -65,6 +67,8 @@ class Ui():
                                         self.launchpad,
                                         self.interface,
                                         silent=True))
+        for seq in self.sequences:
+            self.saveSequence(seq)
 
     def printMsg(self, txt, font=LCD_FONT, moving=False):
         virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
@@ -93,6 +97,23 @@ class Ui():
                 time.sleep(0.5)
         else:
             virtual.set_position((0, 0))
+
+    def saveSequence(self, sequence):
+        sequencerData = {}
+        sequencerData['note'] = sequence.note
+        sequencerData['channel'] = sequence.channel
+        sequencerData['name'] = sequence.name
+        sequencerData['silent'] = sequence.silent
+        sequencerData['sequence'] = []
+        for step in sequence.sequence:
+            temp = {}
+            temp['cc'] = step.cc
+            temp['note'] = step.note
+            temp['active'] = step.active
+            sequencerData['sequence'].append(temp)
+        print(sequencerData)
+        with open(self.sequenceDir + sequence.name + '.json', 'w') as fp:
+            json.dump(sequencerData, fp, indent=4)
 
     def showIndicator(self):
         for i in range(0, 4):
@@ -184,7 +205,9 @@ class Ui():
                     self.sequences[self.active].nextStep()
                 if msg.control == 116:
                     #self.sequences[self.active].prevStep()
-                    print("soon")
+                    self.printMsg("save", font=TINY_FONT)
+                    self.saveSequence(self.sequences[self.active])
+
                 for step in self.sequences[self.active].sequence:
                     if step.ccPitch == msg.control:
                         step.addCc(102, msg.value)
