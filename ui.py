@@ -1,17 +1,15 @@
 from __future__ import print_function
+import time
+import mido
 from luma.led_matrix.device import max7219
 from luma.core.interface.serial import spi, noop
 from luma.core.render import canvas
 from luma.core.virtual import viewport
-from luma.core.legacy import text, show_message
-from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT, SINCLAIR_FONT, LCD_FONT
+from luma.core.legacy import text
+from luma.core.legacy.font import proportional, TINY_FONT, LCD_FONT
 from mido import Message
 from sequencer import Sequencer
 from colors import Colors
-import mido
-import re
-import time
-import argparse
 
 class Ui():
     sequences = None
@@ -70,24 +68,23 @@ class Ui():
 
     def printMsg(self, txt, font=LCD_FONT, moving=False):
         virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
-        print(len(txt))
-        margin = 8
-        marginY = 0
         margins = []
         if font == TINY_FONT:
-            margins.append([0,0])
-            margins.append([4,0])
-            margins.append([0,8])
-            margins.append([4,8])
+            margins.append([0, 0])
+            margins.append([4, 0])
+            margins.append([0, 8])
+            margins.append([4, 8])
         else:
-            margins.append([0,0])
-            margins.append([0,8])
-        if font == TINY_FONT:
-            marginY =4
-            margin = 0
+            margins.append([0, 0])
+            margins.append([0, 8])
+
         with canvas(virtual) as draw:
             for i, word in enumerate(txt):
-                text(draw, (margins[i][0], margins[i][1]), word, fill="white", font=proportional(font))
+                text(draw,
+                     (margins[i][0], margins[i][1]),
+                     word,
+                     fill="white",
+                     font=proportional(font))
         if moving:
             print("move")
             for i in range(virtual.height - self.device.height):
@@ -97,10 +94,8 @@ class Ui():
         else:
             virtual.set_position((0, 0))
 
-
-
     def showIndicator(self):
-        for i in range(0,4):
+        for i in range(0, 4):
             self.litup(i + 8, Colors.OFF)
         self.litup(self.active + 8, Colors.RED_LOW)
 
@@ -122,7 +117,7 @@ class Ui():
                 seq.sequence[seq.activeStep].litup(Colors.YELLOW)
             seq.activeStep = 0
             if not seq.silent:
-                seq.sequence[0].litup(GREEN_LOW)
+                seq.sequence[0].litup(Colors.GREEN_LOW)
 
     def clockHandler(self):
         self.printSilent()
@@ -144,6 +139,7 @@ class Ui():
                     self.clockCount = 0
                 else:
                     self.clockCount += 1
+
     def printSeq(self):
         for seq in self.sequences:
             print(seq.note)
@@ -200,15 +196,16 @@ class Ui():
                         step.velocity = msg.value
 
             if msg.type == "note_on":
-                for s in self.sequences[self.active].sequence:
-                    if msg.note == s.note:
-                        s.active = not s.active
-                        if s.value != Colors.RED_LOW:
-                            s.value = Colors.RED_LOW
-                            s.litup()
+                for step in self.sequences[self.active].sequence:
+                    if msg.note == step.note:
+                        step.active = not step.active
+                        if step.value != Colors.RED_LOW:
+                            step.value = Colors.RED_LOW
+                            step.litup()
                         else:
-                            s.value = Colors.YELLOW
-                            s.litup()
+                            step.value = Colors.YELLOW
+                            step.litup()
+
     def litup(self, led, value=None):
         template = 8
         msg = Message(type='sysex',

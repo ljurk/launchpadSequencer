@@ -1,6 +1,5 @@
-from colors import Colors
 from mido import Message
-
+from colors import Colors
 
 
 class Step():
