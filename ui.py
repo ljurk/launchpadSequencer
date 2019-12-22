@@ -2,7 +2,6 @@ from __future__ import print_function
 import os
 import time
 import json
-import codecs
 import mido
 from luma.led_matrix.device import max7219
 from luma.core.interface.serial import spi, noop
@@ -129,12 +128,12 @@ class Ui():
             temp['value'] = step.value
             sequencerData['sequence'].append(temp)
         print(sequencerData)
-        with open(self.sequenceDir + sequence.name + '.json', 'wb') as fp:
-            json.dump(sequencerData, codecs.getwriter('utf-8')(fp), indent=4, ensure_ascii=False)
+        with open(self.sequenceDir + sequence.name + '.json', 'w', encoding='utf-8') as fp:
+            json.dump(sequencerData, fp, indent=4, ensure_ascii=False)
 
     def loadSequences(self):
         for seqfile in os.listdir(self.sequenceDir):
-            with codecs.open(os.path.join(self.sequenceDir, seqfile), 'r', encoding='utf-8') as fp:
+            with open(os.path.join(self.sequenceDir, seqfile), 'r', encoding='utf-8') as fp:
                 data = json.load(fp)
             #print(data)
             sequence = []
