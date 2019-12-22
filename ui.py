@@ -1,6 +1,8 @@
 from __future__ import print_function
+import os
 import time
 import json
+import codecs
 import mido
 from luma.led_matrix.device import max7219
 from luma.core.interface.serial import spi, noop
@@ -10,6 +12,7 @@ from luma.core.legacy import text
 from luma.core.legacy.font import proportional, TINY_FONT, LCD_FONT
 from mido import Message
 from sequencer import Sequencer
+from step import Step
 from colors import Colors
 
 class Ui():
@@ -47,28 +50,37 @@ class Ui():
             self.interface['in'] = mido.open_input(clockPort)
             self.interface['out'] = mido.open_output(outputPort)
         self.sequences = []
-        self.sequences.append(Sequencer(36,
-                                        "KK",
-                                        self.launchpad,
-                                        self.interface,
-                                        silent=False))
-        self.sequences.append(Sequencer(46,
-                                        "SD",
-                                        self.launchpad,
-                                        self.interface,
-                                        silent=True))
-        self.sequences.append(Sequencer(44,
-                                        "OH",
-                                        self.launchpad,
-                                        self.interface,
-                                        silent=True))
-        self.sequences.append(Sequencer(39,
-                                        "CP",
-                                        self.launchpad,
-                                        self.interface,
-                                        silent=True))
-        for seq in self.sequences:
-            self.saveSequence(seq)
+
+        new = False
+        if new:
+            self.sequences.append(Sequencer(36,
+                                            "KK",
+                                            self.launchpad,
+                                            self.interface,
+                                            silent=False,
+                                            new=True))
+            self.sequences.append(Sequencer(46,
+                                            "SD",
+                                            self.launchpad,
+                                            self.interface,
+                                            silent=True,
+                                            new=True))
+            self.sequences.append(Sequencer(44,
+                                            "OH",
+                                            self.launchpad,
+                                            self.interface,
+                                            silent=True,
+                                            new=True))
+            self.sequences.append(Sequencer(39,
+                                            "CP",
+                                            self.launchpad,
+                                            self.interface,
+                                            silent=True,
+                                            new=True))
+            for seq in self.sequences:
+                self.saveSequence(seq)
+        else:
+            self.loadSequences()
 
     def printMsg(self, txt, font=LCD_FONT, moving=False):
         virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
@@ -103,17 +115,47 @@ class Ui():
         sequencerData['note'] = sequence.note
         sequencerData['channel'] = sequence.channel
         sequencerData['name'] = sequence.name
-        sequencerData['silent'] = sequence.silent
+        sequencerData['silent'] = 'true' if sequence.silent else 'false'
         sequencerData['sequence'] = []
         for step in sequence.sequence:
             temp = {}
             temp['cc'] = step.cc
             temp['note'] = step.note
-            temp['active'] = step.active
+            temp['active'] = 'true' if step.active else 'false'
+            temp['led'] = step.led
+            temp['ccPitch'] = step.ccPitch
+            temp['ccVelo'] = step.ccVelo
+            temp['cc'] = step.cc
+            temp['value'] = step.value
             sequencerData['sequence'].append(temp)
         print(sequencerData)
-        with open(self.sequenceDir + sequence.name + '.json', 'w') as fp:
-            json.dump(sequencerData, fp, indent=4)
+        with open(self.sequenceDir + sequence.name + '.json', 'wb') as fp:
+            json.dump(sequencerData, codecs.getwriter('utf-8')(fp), indent=4, ensure_ascii=False)
+
+    def loadSequences(self):
+        for seqfile in os.listdir(self.sequenceDir):
+            with codecs.open(os.path.join(self.sequenceDir, seqfile), 'r', encoding='utf-8') as fp:
+                data = json.load(fp)
+            #print(data)
+            sequence = []
+            for step in data['sequence']:
+                print(step)
+                sequence.append(Step(step['note'],
+                                     step['led'],
+                                     step['ccPitch'],
+                                     step['ccVelo'],
+                                     self.launchpad['out'],
+                                     step['cc'][0]['cc'],
+                                     step['cc'][0]['value'],
+                                     step['value']))
+                temp = {}
+
+            self.sequences.append(Sequencer(data['note'],
+                                            data['name'],
+                                            self.launchpad,
+                                            self.interface,
+                                            silent=False))
+            self.sequences[-1].sequence = sequence
 
     def showIndicator(self):
         for i in range(0, 4):

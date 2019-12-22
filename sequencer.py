@@ -70,7 +70,7 @@ class Sequencer():
         self.sequence[activeStep].litup(Colors.GREEN_LOW)
         return activeStep
 
-    def __init__(self, note, name, launchpadPorts, interfacePorts, silent):
+    def __init__(self, note, name, launchpadPorts, interfacePorts, silent, new=False):
         print("init")
         self.launchpad = launchpadPorts
         self.interface = interfacePorts
@@ -80,18 +80,7 @@ class Sequencer():
         self.sequence = []
         cc = 102
         val = 60
-        if note == 36:
-            self.sequence.append(Step(9, 0, 41, 21, self.launchpad['out'], cc, val, Colors.RED_LOW))
-            self.sequence.append(Step(10, 1, 42, 22, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(11, 2, 43, 23, self.launchpad['out'], cc, val, Colors.RED_LOW))
-            cc = 103
-            self.sequence.append(Step(12, 3, 44, 24, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(25, 4, 45, 25, self.launchpad['out'], cc, val, Colors.RED_LOW))
-            self.sequence.append(Step(26, 5, 46, 26, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(27, 6, 47, 27, self.launchpad['out'], cc, val, Colors.RED_LOW))
-            self.sequence.append(Step(28, 7, 48, 28, self.launchpad['out'], cc, val))
-            self.sequence[7].addCc(33, 55)
-        else:
+        if new:
             self.sequence.append(Step(9, 0, 41, 21, self.launchpad['out'], cc, val))
             self.sequence.append(Step(10, 1, 42, 22, self.launchpad['out'], cc, val))
             self.sequence.append(Step(11, 2, 43, 23, self.launchpad['out'], cc, val))
