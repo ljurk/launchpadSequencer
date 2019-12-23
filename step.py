@@ -19,7 +19,7 @@ class Step():
     colors['off'] = Colors.YELLOW
     active = False
 
-    def __init__(self, note, led, ccPitch, ccVelo, outport, cc, val, value=Colors.YELLOW):
+    def __init__(self, note, led, ccPitch, ccVelo, outport, value=Colors.YELLOW):
         self.launchOut = outport
         self.note = note
         self.led = led
@@ -30,12 +30,12 @@ class Step():
             self.active = True
 
         self.cc = []
-        ccs = {}
-        ccs['cc'] = cc
-        ccs['value'] = val
-        self.cc.append(ccs)
 
     def addCc(self, cc, value):
+        for ccEntry in self.cc:
+            if ccEntry['cc'] == cc:
+                ccEntry['value'] = value
+                return
         ccs = {}
         ccs['cc'] = cc
         ccs['value'] = value

@@ -40,6 +40,7 @@ class Sequencer():
 
         if self.sequence[self.activeStep].active:
             for cc in self.sequence[self.activeStep].cc:
+                print("CCCCCC")
                 print("send" + str(cc['value']))
                 ccMsg = Message('control_change',
                                 channel=self.channel,
@@ -78,17 +79,15 @@ class Sequencer():
         self.name = name
         self.silent = silent
         self.sequence = []
-        cc = 102
-        val = 60
         if new:
-            self.sequence.append(Step(9, 0, 41, 21, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(10, 1, 42, 22, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(11, 2, 43, 23, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(12, 3, 44, 24, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(25, 4, 45, 25, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(26, 5, 46, 26, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(27, 6, 47, 27, self.launchpad['out'], cc, val))
-            self.sequence.append(Step(28, 7, 48, 28, self.launchpad['out'], cc, val))
+            self.sequence.append(Step(9, 0, 41, 21, self.launchpad['out']))
+            self.sequence.append(Step(10, 1, 42, 22, self.launchpad['out']))
+            self.sequence.append(Step(11, 2, 43, 23, self.launchpad['out']))
+            self.sequence.append(Step(12, 3, 44, 24, self.launchpad['out']))
+            self.sequence.append(Step(25, 4, 45, 25, self.launchpad['out']))
+            self.sequence.append(Step(26, 5, 46, 26, self.launchpad['out']))
+            self.sequence.append(Step(27, 6, 47, 27, self.launchpad['out']))
+            self.sequence.append(Step(28, 7, 48, 28, self.launchpad['out']))
 
 
     def run(self, silent=False):
