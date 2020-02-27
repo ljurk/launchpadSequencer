@@ -227,30 +227,32 @@ class Ui():
         msg= self.launchpad['in'].poll()
         if msg:
             if msg.type == "control_change":
-                #main buttons
+                #navigation buttons
+
                 if msg.value == 0:
+                    # ignore off message
                     return
-                if msg.control == 114:
-                    #up
+                if msg.control in (114, 115):
+                    # hide previous sequence
                     self.sequences[self.active].silent = True
-                    if self.active == len(self.sequences) - 1:
-                        self.active = 0
-                    else:
+
+                    if msg.control == 114:
+                        # up
                         self.active += 1
+                        if self.active == len(self.sequences):
+                            self.active = 0
+                    else:
+                        # down
+                        self.active -= 1
+                        if self.active == -1:
+                            self.active = len(self.sequences) -1
+
                     print("active:" + str(self.active))
                     self.printMsg(self.sequences[self.active].name,
                                   font=TINY_FONT)
                     self.sequences[self.active].silent = False
                     self.showIndicator()
                     self.reloadSequence()
-                if msg.control == 115:
-                    # down
-                    if self.active == 0:
-                        self.active = len(self.sequences) - 1
-                    else:
-                        self.active -= 1
-                    print("active:" + str(self.active))
-                    self.showIndicator()
 
                 # per sequence buttons
                 if msg.control == 117:
@@ -261,6 +263,7 @@ class Ui():
                     self.saveSequence(self.sequences[self.active])
 
                 for stepNumber , step in enumerate(self.sequences[self.active].sequence):
+                    # lower row
                     if step.ccPitch == msg.control:
                         print(stepNumber)
                         step.addCc(18, msg.value)
@@ -271,6 +274,7 @@ class Ui():
                         self.printMsg("." + str(msg.value),
                                       font=TINY_FONT)
                         print("ccNOOOOOOOOOOOOOOW")
+                    # upper row
                     if step.ccVelo == msg.control:
                         self.printMsg(".",
                                       font=TINY_FONT,
