@@ -50,7 +50,7 @@ class Ui():
             self.interface['out'] = mido.open_output(outputPort)
         self.sequences = []
 
-        new = False
+        new = True
         if new:
             self.sequences.append(Sequencer(36,
                                             "KK",
@@ -58,20 +58,20 @@ class Ui():
                                             self.interface,
                                             silent=False,
                                             new=True))
-            self.sequences.append(Sequencer(46,
+            self.sequences.append(Sequencer(38,
                                             "SD",
                                             self.launchpad,
                                             self.interface,
                                             silent=True,
                                             new=True))
-            self.sequences.append(Sequencer(44,
+            self.sequences.append(Sequencer(39,
                                             "OH",
                                             self.launchpad,
                                             self.interface,
                                             silent=True,
                                             new=True))
-            self.sequences.append(Sequencer(39,
-                                            "CP",
+            self.sequences.append(Sequencer(46,
+                                            "CY",
                                             self.launchpad,
                                             self.interface,
                                             silent=True,
@@ -224,11 +224,12 @@ class Ui():
             step.litup()
 
     def checkControls(self):
-        for msg in self.launchpad['in'].iter_pending():
+        msg= self.launchpad['in'].poll()
+        if msg:
             if msg.type == "control_change":
                 #main buttons
                 if msg.value == 0:
-                    continue
+                    return
                 if msg.control == 114:
                     #up
                     self.sequences[self.active].silent = True
@@ -262,7 +263,7 @@ class Ui():
                 for stepNumber , step in enumerate(self.sequences[self.active].sequence):
                     if step.ccPitch == msg.control:
                         print(stepNumber)
-                        step.addCc(102, msg.value)
+                        step.addCc(18, msg.value)
 
                         self.printMsg(".",
                                       font=TINY_FONT,
@@ -302,8 +303,8 @@ class Ui():
         self.printSeq()
         while True:
             try:
-                self.checkControls()
                 self.checkClock()
+                self.checkControls()
                 #for seq in self.sequences:
                     #seq.run()
             except KeyboardInterrupt:
