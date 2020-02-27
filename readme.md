@@ -13,3 +13,13 @@
 |     |        |
 |     |        |
 
+## requirements
+
+- spi activated under raspi-config
+- libasound2-dev
+- libjack-dev
+- libopenjp2-7
+- libtiff5
+- python3-rtmidi
+- python3-dev
+- python3-distutils
