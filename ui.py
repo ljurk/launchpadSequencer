@@ -50,7 +50,7 @@ class Ui():
             self.interface['out'] = mido.open_output(outputPort)
         self.sequences = []
 
-        new = True
+        new = False
         if new:
             self.sequences.append(Sequencer(36,
                                             "KK",
@@ -124,13 +124,13 @@ class Ui():
         sequencerData['note'] = sequence.note
         sequencerData['channel'] = sequence.channel
         sequencerData['name'] = sequence.name
-        sequencerData['silent'] = 'true' if sequence.silent else 'false'
+        sequencerData['silent'] = sequence.silent
         sequencerData['sequence'] = []
         for step in sequence.sequence:
             temp = {}
             temp['cc'] = step.cc
             temp['note'] = step.note
-            temp['active'] = 'true' if step.active else 'false'
+            temp['active'] = step.active
             temp['led'] = step.led
             temp['ccPitch'] = step.ccPitch
             temp['ccVelo'] = step.ccVelo
@@ -142,7 +142,12 @@ class Ui():
             json.dump(sequencerData, fp, indent=4, ensure_ascii=False)
 
     def loadSequences(self):
+        fileCount = 0
         for seqfile in os.listdir(self.sequenceDir):
+            if fileCount == 4:
+                return
+            fileCount += 1
+
             with open(os.path.join(self.sequenceDir, seqfile), 'r', encoding='utf-8') as fp:
                 data = json.load(fp)
             #print(data)
@@ -154,9 +159,7 @@ class Ui():
                                      step['ccPitch'],
                                      step['ccVelo'],
                                      self.launchpad['out'],
-                                     step['cc'][0]['cc'],
-                                     step['cc'][0]['value'],
-                                     step['value']))
+                                     step['active']))
                 temp = {}
 
             self.sequences.append(Sequencer(data['note'],

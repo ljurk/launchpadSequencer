@@ -7,8 +7,10 @@ class Step():
     class with all informations of a step
     """
     note = None
+
     led = None
     value = Colors.YELLOW
+
     velocity = 16
     cc = []
     ccPitch = None
@@ -19,15 +21,15 @@ class Step():
     colors['off'] = Colors.YELLOW
     active = False
 
-    def __init__(self, note, led, ccPitch, ccVelo, outport, value=Colors.YELLOW):
+    def __init__(self, note, led, ccPitch, ccVelo, outport, active=False):
         self.launchOut = outport
         self.note = note
         self.led = led
         self.ccVelo = ccVelo
         self.ccPitch = ccPitch
-        self.value = value
-        if value == Colors.RED_LOW:
-            self.active = True
+        self.active = active
+        if active:
+            self.value = Colors.RED_LOW
 
         self.cc = []
 
