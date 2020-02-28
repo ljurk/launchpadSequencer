@@ -13,20 +13,18 @@ class Step():
 
     velocity = 16
     cc = []
-    ccPitch = None
-    ccVelo = None
+    incommingCC = [] # should consist of 2 numbers one for each knob in this column
     launchOut = None
     colors = {}
     colors['on'] = Colors.RED_LOW
     colors['off'] = Colors.YELLOW
     active = False
 
-    def __init__(self, note, led, ccPitch, ccVelo, outport, active=False):
+    def __init__(self, note, led, incommingCC, outport, active=False):
         self.launchOut = outport
         self.note = note
         self.led = led
-        self.ccVelo = ccVelo
-        self.ccPitch = ccPitch
+        self.incommingCC = incommingCC
         self.active = active
         if active:
             self.value = Colors.RED_LOW

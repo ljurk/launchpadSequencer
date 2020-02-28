@@ -56,24 +56,28 @@ class Ui():
                                             "KK",
                                             self.launchpad,
                                             self.interface,
+                                            outgoingCC=[10,12],
                                             silent=False,
                                             new=True))
             self.sequences.append(Sequencer(38,
                                             "SD",
                                             self.launchpad,
                                             self.interface,
+                                            outgoingCC=[18,19],
                                             silent=True,
                                             new=True))
             self.sequences.append(Sequencer(39,
                                             "OH",
                                             self.launchpad,
                                             self.interface,
+                                            outgoingCC=[58,59],
                                             silent=True,
                                             new=True))
             self.sequences.append(Sequencer(46,
                                             "CY",
                                             self.launchpad,
                                             self.interface,
+                                            outgoingCC=[50,51],
                                             silent=True,
                                             new=True))
             for seq in self.sequences:
@@ -125,6 +129,7 @@ class Ui():
         sequencerData['channel'] = sequence.channel
         sequencerData['name'] = sequence.name
         sequencerData['silent'] = sequence.silent
+        sequencerData['outgoingCC'] = sequence.outgoingCC
         sequencerData['sequence'] = []
         for step in sequence.sequence:
             temp = {}
@@ -132,8 +137,7 @@ class Ui():
             temp['note'] = step.note
             temp['active'] = step.active
             temp['led'] = step.led
-            temp['ccPitch'] = step.ccPitch
-            temp['ccVelo'] = step.ccVelo
+            temp['incommingCC'] = step.incommingCC
             temp['cc'] = step.cc
             temp['value'] = step.value
             sequencerData['sequence'].append(temp)
@@ -156,17 +160,19 @@ class Ui():
                 print(step)
                 sequence.append(Step(step['note'],
                                      step['led'],
-                                     step['ccPitch'],
-                                     step['ccVelo'],
+                                     step['incommingCC'],
                                      self.launchpad['out'],
                                      step['active']))
+                for cc in step['cc']:
+                    sequence[-1].addCc(cc["cc"], cc["value"])
                 temp = {}
 
             self.sequences.append(Sequencer(data['note'],
                                             data['name'],
                                             self.launchpad,
                                             self.interface,
-                                            silent=False))
+                                            outgoingCC=data['outgoingCC'],
+                                            silent=data['silent']))
             self.sequences[-1].sequence = sequence
 
     def showIndicator(self):
@@ -266,23 +272,25 @@ class Ui():
                     self.saveSequence(self.sequences[self.active])
 
                 for stepNumber , step in enumerate(self.sequences[self.active].sequence):
-                    # lower row
-                    if step.ccPitch == msg.control:
+                    # upper row
+                    if step.incommingCC[0] == msg.control:
                         print(stepNumber)
-                        step.addCc(18, msg.value)
+                        step.addCc(self.sequences[self.active].outgoingCC[0], msg.value)
+
 
                         self.printMsg(".",
                                       font=TINY_FONT,
                                       pos=(stepNumber,2))
-                        self.printMsg("." + str(msg.value),
+                        self.printMsg("'" + str(msg.value),
                                       font=TINY_FONT)
                         print("ccNOOOOOOOOOOOOOOW")
-                    # upper row
-                    if step.ccVelo == msg.control:
+                    # lower row
+                    if step.incommingCC[1] == msg.control:
+                        step.addCc(self.sequences[self.active].outgoingCC[1], msg.value)
                         self.printMsg(".",
                                       font=TINY_FONT,
                                       pos=(stepNumber,1))
-                        self.printMsg("'" + str(msg.value),
+                        self.printMsg("." + str(msg.value),
                                       font=TINY_FONT)
                         print("veloNOOOOOOOOOOOOOOW")
                         step.velocity = msg.value

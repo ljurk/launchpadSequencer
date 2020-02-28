@@ -2,79 +2,109 @@
     "note": 39,
     "channel": 3,
     "name": "OH",
-    "silent": "false",
+    "silent": false,
+    "outgoingCC": [
+        58,
+        59
+    ],
     "sequence": [
         {
-            "cc": [],
+            "cc": [
+                {
+                    "cc": 58,
+                    "value": 36
+                }
+            ],
             "note": 9,
-            "active": false,
+            "active": true,
             "led": 0,
-            "ccPitch": 41,
-            "ccVelo": 80,
-            "value": 62
+            "incommingCC": [
+                21,
+                41
+            ],
+            "value": 13
         },
         {
             "cc": [],
             "note": 10,
             "active": false,
             "led": 1,
-            "ccPitch": 42,
-            "ccVelo": 80,
+            "incommingCC": [
+                22,
+                42
+            ],
             "value": 62
         },
         {
             "cc": [],
             "note": 11,
-            "active": false,
+            "active": true,
             "led": 2,
-            "ccPitch": 43,
-            "ccVelo": 80,
-            "value": 62
+            "incommingCC": [
+                23,
+                43
+            ],
+            "value": 13
         },
         {
             "cc": [],
             "note": 12,
             "active": false,
             "led": 3,
-            "ccPitch": 44,
-            "ccVelo": 80,
+            "incommingCC": [
+                24,
+                44
+            ],
             "value": 62
         },
         {
             "cc": [],
             "note": 25,
-            "active": false,
+            "active": true,
             "led": 4,
-            "ccPitch": 45,
-            "ccVelo": 80,
-            "value": 62
+            "incommingCC": [
+                25,
+                45
+            ],
+            "value": 13
         },
         {
             "cc": [],
             "note": 26,
             "active": true,
             "led": 5,
-            "ccPitch": 46,
-            "ccVelo": 80,
+            "incommingCC": [
+                26,
+                46
+            ],
             "value": 13
         },
         {
             "cc": [],
             "note": 27,
-            "active": true,
+            "active": false,
             "led": 6,
-            "ccPitch": 47,
-            "ccVelo": 80,
-            "value": 13
+            "incommingCC": [
+                27,
+                47
+            ],
+            "value": 62
         },
         {
-            "cc": [],
+            "cc": [
+                {
+                    "cc": 59,
+                    "value": 117
+                }
+            ],
             "note": 28,
-            "active": false,
+            "active": true,
             "led": 7,
-            "ccPitch": 48,
-            "ccVelo": 80,
-            "value": 62
+            "incommingCC": [
+                28,
+                48
+            ],
+            "value": 13
         }
     ]
 }
