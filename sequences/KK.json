@@ -1,0 +1,80 @@
+{
+    "note": 36,
+    "channel": 3,
+    "name": "KK",
+    "silent": "false",
+    "sequence": [
+        {
+            "cc": [],
+            "note": 9,
+            "active": true,
+            "led": 0,
+            "ccPitch": 41,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [],
+            "note": 10,
+            "active": false,
+            "led": 1,
+            "ccPitch": 42,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [],
+            "note": 11,
+            "active": true,
+            "led": 2,
+            "ccPitch": 43,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [],
+            "note": 12,
+            "active": false,
+            "led": 3,
+            "ccPitch": 44,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [],
+            "note": 25,
+            "active": true,
+            "led": 4,
+            "ccPitch": 45,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [],
+            "note": 26,
+            "active": false,
+            "led": 5,
+            "ccPitch": 46,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [],
+            "note": 27,
+            "active": true,
+            "led": 6,
+            "ccPitch": 47,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [],
+            "note": 28,
+            "active": false,
+            "led": 7,
+            "ccPitch": 48,
+            "ccVelo": 80,
+            "value": 62
+        }
+    ]
+}

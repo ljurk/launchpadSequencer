@@ -1,0 +1,100 @@
+{
+    "note": 38,
+    "channel": 3,
+    "name": "SD",
+    "silent": "false",
+    "sequence": [
+        {
+            "cc": [],
+            "note": 9,
+            "active": false,
+            "led": 0,
+            "ccPitch": 41,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [],
+            "note": 10,
+            "active": false,
+            "led": 1,
+            "ccPitch": 42,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [
+                {
+                    "cc": 18,
+                    "value": 54
+                }
+            ],
+            "note": 11,
+            "active": true,
+            "led": 2,
+            "ccPitch": 43,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [],
+            "note": 12,
+            "active": false,
+            "led": 3,
+            "ccPitch": 44,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [],
+            "note": 25,
+            "active": false,
+            "led": 4,
+            "ccPitch": 45,
+            "ccVelo": 80,
+            "value": 62
+        },
+        {
+            "cc": [
+                {
+                    "cc": 18,
+                    "value": 127
+                }
+            ],
+            "note": 26,
+            "active": true,
+            "led": 5,
+            "ccPitch": 46,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [
+                {
+                    "cc": 18,
+                    "value": 61
+                }
+            ],
+            "note": 27,
+            "active": true,
+            "led": 6,
+            "ccPitch": 47,
+            "ccVelo": 80,
+            "value": 13
+        },
+        {
+            "cc": [
+                {
+                    "cc": 18,
+                    "value": 14
+                }
+            ],
+            "note": 28,
+            "active": true,
+            "led": 7,
+            "ccPitch": 48,
+            "ccVelo": 80,
+            "value": 13
+        }
+    ]
+}
