@@ -115,11 +115,8 @@ class Ui():
                      fill="white",
                      font=proportional(font))
         if moving:
-            print("move")
             for i in range(virtual.height - self.device.height):
-                print(i)
                 virtual.set_position((0, i))
-                time.sleep(0.5)
         else:
             virtual.set_position((0, 0))
 
@@ -141,23 +138,21 @@ class Ui():
             temp['cc'] = step.cc
             temp['value'] = step.value
             sequencerData['sequence'].append(temp)
-        print(sequencerData)
         with open(self.sequenceDir + sequence.name + '.json', 'w', encoding='utf-8') as fp:
             json.dump(sequencerData, fp, indent=4, ensure_ascii=False)
 
     def loadSequences(self):
         fileCount = 0
-        for seqfile in os.listdir(self.sequenceDir):
+        for seqfile in sorted(os.listdir(self.sequenceDir)):
+            print(seqfile)
             if fileCount == 4:
                 return
             fileCount += 1
 
             with open(os.path.join(self.sequenceDir, seqfile), 'r', encoding='utf-8') as fp:
                 data = json.load(fp)
-            #print(data)
             sequence = []
             for step in data['sequence']:
-                print(step)
                 sequence.append(Step(step['note'],
                                      step['led'],
                                      step['incommingCC'],
@@ -180,13 +175,22 @@ class Ui():
             self.litup(i + 8, Colors.OFF)
         self.litup(self.active + 8, Colors.RED_LOW)
 
-    def printSilent(self):
-        i = 0
-        for seq in self.sequences:
-            print(i)
-            print(seq.silent)
-            i += 1
-        print("_________________")
+    def showInfo(self, seqName):
+        virtual = viewport(self.device, width=self.device.width, height=self.device.height*2)
+        with canvas(virtual) as draw:
+            text(draw,
+                 (0,0),
+                 seqName,
+                 fill="white",
+                 font=proportional(TINY_FONT))
+            # print sequences
+            for y, seq in enumerate(self.sequences):
+                for x, step in enumerate(seq.sequence):
+                    if step.active:
+                            draw.point((x,y+8), fill="white")
+            # show active step
+
+            draw.point((self.sequences[0].activeStep,13), fill="white")
 
     def stopHandler(self):
         self.interface['out'].reset()
@@ -201,9 +205,9 @@ class Ui():
                 seq.sequence[0].litup(Colors.GREEN_LOW)
 
     def clockHandler(self):
-        self.printSilent()
         for seq in self.sequences:
             seq.nextStep()
+            self.showInfo(self.sequences[self.active].name)
 
     def checkClock(self):
         for msg in self.interface['in'].iter_pending():
@@ -220,13 +224,6 @@ class Ui():
                     self.clockCount = 0
                 else:
                     self.clockCount += 1
-
-    def printSeq(self):
-        for seq in self.sequences:
-            print(seq.note)
-            for step in seq.sequence:
-                print("[" + str(step.value) + "]", end='')
-            print("S")
 
     def reloadSequence(self):
         for step in self.sequences[self.active].sequence:
@@ -257,10 +254,9 @@ class Ui():
                             self.active = len(self.sequences) -1
 
                     print("active:" + str(self.active))
-                    self.printMsg(self.sequences[self.active].name,
-                                  font=TINY_FONT)
                     self.sequences[self.active].silent = False
                     self.showIndicator()
+                    self.showInfo(self.sequences[self.active].name)
                     self.reloadSequence()
 
                 # per sequence buttons
@@ -274,7 +270,7 @@ class Ui():
                 for stepNumber , step in enumerate(self.sequences[self.active].sequence):
                     # upper row
                     if step.incommingCC[0] == msg.control:
-                        print(stepNumber)
+                        print(f"cc:{stepNumber}")
                         step.addCc(self.sequences[self.active].outgoingCC[0], msg.value)
 
 
@@ -283,16 +279,15 @@ class Ui():
                                       pos=(stepNumber,2))
                         self.printMsg("'" + str(msg.value),
                                       font=TINY_FONT)
-                        print("ccNOOOOOOOOOOOOOOW")
                     # lower row
                     if step.incommingCC[1] == msg.control:
+                        print(f"velo:{stepNumber}")
                         step.addCc(self.sequences[self.active].outgoingCC[1], msg.value)
                         self.printMsg(".",
                                       font=TINY_FONT,
                                       pos=(stepNumber,1))
                         self.printMsg("." + str(msg.value),
                                       font=TINY_FONT)
-                        print("veloNOOOOOOOOOOOOOOW")
                         step.velocity = msg.value
 
             if msg.type == "note_on":
@@ -314,8 +309,6 @@ class Ui():
         self.launchpad['out'].send(msg)
 
     def run(self):
-        print(self.active)
-        self.printSeq()
         while True:
             try:
                 self.checkClock()
