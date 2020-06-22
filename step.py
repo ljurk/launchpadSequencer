@@ -11,7 +11,7 @@ class Step():
     led = None
     value = Colors.YELLOW
 
-    velocity = 16
+    velocity = 100
     cc = []
     incommingCC = [] # should consist of 2 numbers one for each knob in this column
     launchOut = None
