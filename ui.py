@@ -25,29 +25,21 @@ class Ui():
     clockCount = 0
     device = None
     sequenceDir = "sequences/"
-    def __init__(self, debug):
+    def __init__(self, midiController, midiInput, midiOutput debug):
         serial = spi(port=0, device=0, gpio=noop())
         self.device = max7219(serial,
                               cascaded=2,
                               rotate=1)
         print("Created device")
         self.printMsg("ESID", font=TINY_FONT)
+        self.launchpad['in'] = mido.open_input(midiController)
+        self.launchpad['out'] = mido.open_output(midiController)
         if debug:
             self.interface['in'] = mido.open_input()
             self.interface['out'] = mido.open_output()
-            inputPort = "Launch Control MIDI 1"
-            self.launchpad['in'] = mido.open_input(inputPort)
-            self.launchpad['out'] = mido.open_output(inputPort)
         else:
-            inputPort = "Launch Control MIDI 1"
-            clockPort = "Elektron Digitakt MIDI 1"
-            #clockPort = None
-            #outputPort = None
-            outputPort = "USB MIDI Interface:USB MIDI Interface MIDI 1"
-            self.launchpad['in'] = mido.open_input(inputPort)
-            self.launchpad['out'] = mido.open_output(inputPort)
-            self.interface['in'] = mido.open_input(clockPort)
-            self.interface['out'] = mido.open_output(outputPort)
+            self.interface['in'] = mido.open_input(midiInput)
+            self.interface['out'] = mido.open_output(midiOutput)
         self.sequences = []
 
         new = False
@@ -208,6 +200,21 @@ class Ui():
         for seq in self.sequences:
             seq.nextStep()
             self.showInfo(self.sequences[self.active].name)
+
+    def clockCallback(self, msg):
+        if msg.type == "start":
+            print('START')
+            self.started = True
+        if msg.type == "stop":
+            print('STOP')
+            self.stopHandler()
+
+        if msg.type == "clock" and self.started:
+            if self.clockCount == self.clockDivider:
+                self.clockHandler()
+                self.clockCount = 0
+            else:
+                self.clockCount += 1
 
     def checkClock(self):
         for msg in self.interface['in'].iter_pending():
